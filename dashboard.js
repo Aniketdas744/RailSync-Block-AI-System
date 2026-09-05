@@ -21,7 +21,7 @@
 
 
     const API_BASE =
-        "http://127.0.0.1:8000";
+        "https://railsync-block-ai-system-6.onrender.com";
 
     const SESSION_KEY =
         "railsync_staff_session";
