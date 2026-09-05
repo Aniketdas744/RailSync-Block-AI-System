@@ -20,7 +20,7 @@
        ========================================================= */
 
 
-    const API_BASE =
+        const API_BASE =
         "https://railsync-block-ai-system-6.onrender.com";
 
     const SESSION_KEY =
@@ -299,7 +299,7 @@
         async getHealth() {
 
             return apiRequest(
-                "/"
+                "/api/health"
             );
         },
 
