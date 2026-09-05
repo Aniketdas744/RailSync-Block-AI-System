@@ -21,7 +21,7 @@
 
 
         const API_BASE =
-        "https://railsync-block-ai-system-6.onrender.com";
+        "https://railsync-block-ai-system-6.onrender.com/api";
 
     const SESSION_KEY =
         "railsync_staff_session";
