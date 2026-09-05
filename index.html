@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RailSync-AI | Intelligent Railway Operations</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --rail-orange: #e87522;
+            --rail-maroon: #7a1f1f;
+            --rail-dark: #4a1717;
+            --rail-cream: #f7f1e6;
+            --rail-gold: #d6a63d;
+            --rail-steel: #59636e;
+            --rail-light: #fffdf8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--rail-cream);
+            color: #351414;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .rail-pattern {
+            background-image:
+                linear-gradient(rgba(122,31,31,.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(122,31,31,.035) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+
+        .rail-line {
+            height: 4px;
+            background: linear-gradient(
+                90deg,
+                var(--rail-maroon),
+                var(--rail-orange),
+                var(--rail-gold),
+                var(--rail-maroon)
+            );
+        }
+
+        .station-board {
+            background: #261818;
+            color: #f6df9b;
+            border: 5px solid #3b2920;
+            box-shadow:
+                0 20px 50px rgba(74,23,23,.22),
+                inset 0 0 0 2px #7c633d;
+        }
+
+        .board-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 999px;
+            background: var(--rail-orange);
+            box-shadow: 0 0 10px rgba(232,117,34,.7);
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,.76);
+            border: 1px solid rgba(122,31,31,.12);
+            transition: .2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(74,23,23,.1);
+        }
+
+        .modal-backdrop {
+            background: rgba(35,14,14,.62);
+            backdrop-filter: blur(5px);
+        }
+
+        .auth-panel {
+            background: var(--rail-light);
+            border: 1px solid rgba(122,31,31,.15);
+            box-shadow: 0 25px 80px rgba(50,20,20,.28);
+        }
+
+        .status-online {
+            color: #22734a;
+        }
+
+        .status-offline {
+            color: #a62e2e;
+        }
+
+        .btn-primary {
+            background: var(--rail-maroon);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--rail-dark);
+        }
+
+        .btn-orange {
+            background: var(--rail-orange);
+            color: white;
+        }
+
+        .btn-orange:hover {
+            filter: brightness(.93);
+        }
+
+        .hide {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="rail-pattern">
+
+    <div class="rail-line"></div>
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 bg-[#fffdf8]/95 backdrop-blur border-b border-[#7a1f1f]/10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-lg bg-[#7a1f1f] text-white flex items-center justify-center font-black text-lg">
+                    RS
+                </div>
+
+                <div>
+                    <div class="font-black text-[#4a1717] text-lg">
+                        RailSync-AI
+                    </div>
+
+                    <div class="text-[10px] uppercase tracking-[.2em] text-[#59636e]">
+                        Railway Decision Support
+                    </div>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-7 text-sm font-semibold text-[#4a1717]">
+                <a href="#about" class="hover:text-[#e87522]">About</a>
+                <a href="#workflow" class="hover:text-[#e87522]">Workflow</a>
+                <a href="#features" class="hover:text-[#e87522]">Features</a>
+                <a href="#roles" class="hover:text-[#e87522]">Roles</a>
+                <a href="#technology" class="hover:text-[#e87522]">Technology</a>
+            </nav>
+
+            <button
+                id="headerLoginBtn"
+                class="btn-primary px-5 py-2.5 rounded-lg text-sm font-bold">
+                Staff Login
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="max-w-7xl mx-auto px-6 py-20 lg:py-28">
+
+        <div class="grid lg:grid-cols-2 gap-14 items-center">
+
+            <div>
+
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#7a1f1f]/8 border border-[#7a1f1f]/15 text-[#7a1f1f] text-xs font-bold uppercase tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-[#e87522]"></span>
+                    Railway Decision Support System
+                </div>
+
+                <h1 class="mt-7 text-5xl lg:text-6xl font-black leading-[1.03] text-[#4a1717]">
+                    Smarter Maintenance.
+                    <span class="text-[#e87522]">Safer Operations.</span>
+                </h1>
+
+                <p class="mt-6 text-lg leading-8 text-[#59636e] max-w-xl">
+                    RailSync-AI automatically plans railway maintenance blocks
+                    around train operations using real railway timetable data,
+                    AI-based priority scoring and Google OR-Tools CP-SAT optimization.
+                </p>
+
+                <div class="flex flex-wrap gap-3 mt-8">
+
+                    <button
+                        id="heroLoginBtn"
+                        class="btn-primary px-6 py-3 rounded-lg font-bold">
+                        Staff Login
+                    </button>
+
+                    <button
+                        id="heroRegisterBtn"
+                        class="btn-orange px-6 py-3 rounded-lg font-bold">
+                        Register Staff
+                    </button>
+
+                    <button
+                        id="heroConsoleBtn"
+                        class="border-2 border-[#7a1f1f] text-[#7a1f1f] px-6 py-3 rounded-lg font-bold hover:bg-[#7a1f1f] hover:text-white transition">
+                        Operations Console →
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap gap-3 mt-8 text-xs font-bold text-[#59636e]">
+                    <span class="px-3 py-2 rounded bg-white border border-[#7a1f1f]/10">
+                        Real Railway Timetable
+                    </span>
+
+                    <span class="px-3 py-2 rounded bg-white border border-[#7a1f1f]/10">
+                        CP-SAT Optimization
+                    </span>
+
+                    <span class="px-3 py-2 rounded bg-white border border-[#7a1f1f]/10">
+                        Role-Based Access
+                    </span>
+                </div>
+
+                <div class="mt-6 text-sm">
+                    Backend:
+                    <span id="backendConnection" class="font-bold">
+                        Checking...
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- STATION BOARD -->
+            <div class="station-board rounded-xl p-6">
+
+                <div class="flex items-center justify-between border-b border-[#705d3c] pb-4">
+                    <div>
+                        <div class="text-xs tracking-[.25em]">
+                            INDIAN RAILWAYS
+                        </div>
+
+                        <div class="text-2xl font-black mt-1">
+                            OPERATIONS CONTROL
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <div class="text-[10px] tracking-widest">
+                            SYSTEM
+                        </div>
+
+                        <div id="systemStatus" class="text-lg font-black">
+                            CHECKING
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 py-6">
+
+                    <div class="border border-[#705d3c] rounded p-4">
+                        <div class="text-[10px] tracking-widest">
+                            TRAINS
+                        </div>
+
+                        <div id="trainsStatus" class="text-xl font-black mt-2">
+                            —
+                        </div>
+                    </div>
+
+                    <div class="border border-[#705d3c] rounded p-4">
+                        <div class="text-[10px] tracking-widest">
+                            BLOCKS
+                        </div>
+
+                        <div id="blocksStatus" class="text-xl font-black mt-2">
+                            —
+                        </div>
+                    </div>
+
+                    <div class="border border-[#705d3c] rounded p-4">
+                        <div class="text-[10px] tracking-widest">
+                            SAFETY
+                        </div>
+
+                        <div id="safetyStatus" class="text-xl font-black mt-2">
+                            —
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="space-y-3">
+
+                    <div class="flex items-center justify-between border-t border-[#705d3c] pt-4">
+                        <div class="flex items-center gap-3">
+                            <span class="board-dot"></span>
+                            TRAIN OPERATIONS
+                        </div>
+
+                        <span id="trainOperationalStatus">
+                            CHECKING
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-[#705d3c] pt-4">
+                        <div class="flex items-center gap-3">
+                            <span class="board-dot"></span>
+                            MAINTENANCE BLOCKS
+                        </div>
+
+                        <span id="maintenanceOperationalStatus">
+                            CHECKING
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-[#705d3c] pt-4">
+                        <div class="flex items-center gap-3">
+                            <span class="board-dot"></span>
+                            DISRUPTION RESPONSE
+                        </div>
+
+                        <span id="disruptionOperationalStatus">
+                            READY
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="max-w-7xl mx-auto px-6 py-20">
+
+        <div class="max-w-2xl">
+            <div class="text-xs font-black uppercase tracking-[.2em] text-[#e87522]">
+                About RailSync-AI
+            </div>
+
+            <h2 class="text-4xl font-black text-[#4a1717] mt-3">
+                From maintenance requests to optimized railway possessions.
+            </h2>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-5 mt-10">
+
+            <div class="feature-card rounded-xl p-7">
+                <div class="text-3xl">01</div>
+                <h3 class="font-black text-xl mt-5 text-[#4a1717]">
+                    Collect
+                </h3>
+                <p class="mt-3 text-[#59636e] leading-7">
+                    Collect maintenance demands, railway timetable information,
+                    infrastructure sections and operational constraints.
+                </p>
+            </div>
+
+            <div class="feature-card rounded-xl p-7">
+                <div class="text-3xl">02</div>
+                <h3 class="font-black text-xl mt-5 text-[#4a1717]">
+                    Optimize
+                </h3>
+                <p class="mt-3 text-[#59636e] leading-7">
+                    AI prioritizes maintenance and CP-SAT generates conflict-aware
+                    maintenance blocks around train movements.
+                </p>
+            </div>
+
+            <div class="feature-card rounded-xl p-7">
+                <div class="text-3xl">03</div>
+                <h3 class="font-black text-xl mt-5 text-[#4a1717]">
+                    Respond
+                </h3>
+                <p class="mt-3 text-[#59636e] leading-7">
+                    When disruption occurs, the system can simulate the impact
+                    and generate an optimized operational response.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- WORKFLOW -->
+    <section id="workflow" class="bg-[#4a1717] text-white py-20">
+
+        <div class="max-w-7xl mx-auto px-6">
+
+            <div class="text-xs uppercase tracking-[.2em] text-[#d6a63d] font-black">
+                AI Workflow
+            </div>
+
+            <h2 class="text-4xl font-black mt-3">
+                Five stages of intelligent block planning
+            </h2>
+
+            <div class="grid md:grid-cols-5 gap-4 mt-10">
+
+                <div class="border border-white/15 rounded-xl p-5">
+                    <div class="text-[#d6a63d] font-black">01</div>
+                    <h3 class="font-bold mt-3">Request</h3>
+                    <p class="text-sm text-white/65 mt-2">
+                        Maintenance work enters the planning system.
+                    </p>
+                </div>
+
+                <div class="border border-white/15 rounded-xl p-5">
+                    <div class="text-[#d6a63d] font-black">02</div>
+                    <h3 class="font-bold mt-3">Prioritize</h3>
+                    <p class="text-sm text-white/65 mt-2">
+                        Safety and operational impact determine priority.
+                    </p>
+                </div>
+
+                <div class="border border-white/15 rounded-xl p-5">
+                    <div class="text-[#d6a63d] font-black">03</div>
+                    <h3 class="font-bold mt-3">Optimize</h3>
+                    <p class="text-sm text-white/65 mt-2">
+                        CP-SAT searches for a feasible block plan.
+                    </p>
+                </div>
+
+                <div class="border border-white/15 rounded-xl p-5">
+                    <div class="text-[#d6a63d] font-black">04</div>
+                    <h3 class="font-bold mt-3">Simulate</h3>
+                    <p class="text-sm text-white/65 mt-2">
+                        Potential disruption is evaluated.
+                    </p>
+                </div>
+
+                <div class="border border-white/15 rounded-xl p-5">
+                    <div class="text-[#d6a63d] font-black">05</div>
+                    <h3 class="font-bold mt-3">Re-plan</h3>
+                    <p class="text-sm text-white/65 mt-2">
+                        The system generates a revised decision.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="max-w-7xl mx-auto px-6 py-20">
+
+        <div class="text-xs uppercase tracking-[.2em] text-[#e87522] font-black">
+            Capabilities
+        </div>
+
+        <h2 class="text-4xl font-black text-[#4a1717] mt-3">
+            Built for railway operations.
+        </h2>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
+
+            <div class="feature-card rounded-xl p-7">
+                <h3 class="font-black text-xl text-[#4a1717]">
+                    Real Railway Timetable
+                </h3>
+                <p class="text-[#59636e] mt-3 leading-7">
+                    Uses the railway timetable dataset loaded by the backend.
+                </p>
+            </div>
+
+            <div class="feature-card rounded-xl p-7">
+                <h3 class="font-black text-xl text-[#4a1717]">
+                    Maintenance Block Planning
+                </h3>
+                <p class="text-[#59636e] mt-3 leading-7">
+                    Generates optimized possession schedules.
+                </p>
+            </div>
+
+            <div class="feature-card rounded-xl p-7">
+                <h3 class="font-black text-xl text-[#4a1717]">
+                    Disruption Simulation
+                </h3>
+                <p class="text-[#59636e] mt-3 leading-7">
+                    Simulates train disruption and delay scenarios.
+                </p>
+            </div>
+
+            <div class="feature-card rounded-xl p-7">
+                <h3 class="font-black text-xl text-[#4a1717]">
+                    AI Re-optimization
+                </h3>
+                <p class="text-[#59636e] mt-3 leading-7">
+                    Re-optimizes the railway plan after operational changes.
+                </p>
+            </div>
+
+            <div class="feature-card rounded-xl p-7">
+                <h3 class="font-black text-xl text-[#4a1717]">
+                    Safety Validation
+                </h3>
+                <p class="text-[#59636e] mt-3 leading-7">
+                    Checks the generated plan for conflicts.
+                </p>
+            </div>
+
+            <div class="feature-card rounded-xl p-7">
+                <h3 class="font-black text-xl text-[#4a1717]">
+                    Decision Support
+                </h3>
+                <p class="text-[#59636e] mt-3 leading-7">
+                    Supports railway staff without replacing human approval.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ROLES -->
+    <section id="roles" class="bg-[#f0e5d3] py-20">
+
+        <div class="max-w-7xl mx-auto px-6">
+
+            <div class="text-xs uppercase tracking-[.2em] text-[#e87522] font-black">
+                Staff Roles
+            </div>
+
+            <h2 class="text-4xl font-black text-[#4a1717] mt-3">
+                Role-based railway operations.
+            </h2>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-10">
+
+                <div class="bg-white rounded-xl p-5">
+                    <b>Maintenance</b>
+                    <p class="text-sm text-[#59636e] mt-2">Submit maintenance demands.</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-5">
+                    <b>Technical</b>
+                    <p class="text-sm text-[#59636e] mt-2">Review technical work.</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-5">
+                    <b>Supervisor</b>
+                    <p class="text-sm text-[#59636e] mt-2">Approve and optimize plans.</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-5">
+                    <b>Control</b>
+                    <p class="text-sm text-[#59636e] mt-2">Manage operational response.</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-5">
+                    <b>Admin</b>
+                    <p class="text-sm text-[#59636e] mt-2">Manage system access.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- TECHNOLOGY -->
+    <section id="technology" class="max-w-7xl mx-auto px-6 py-20">
+
+        <div class="text-xs uppercase tracking-[.2em] text-[#e87522] font-black">
+            Technology
+        </div>
+
+        <h2 class="text-4xl font-black text-[#4a1717] mt-3">
+            Railway intelligence stack.
+        </h2>
+
+        <div class="grid md:grid-cols-4 gap-5 mt-10">
+
+            <div class="feature-card rounded-xl p-6">
+                <b>Frontend</b>
+                <p class="text-sm text-[#59636e] mt-2">
+                    HTML5 + Tailwind CSS + JavaScript
+                </p>
+            </div>
+
+            <div class="feature-card rounded-xl p-6">
+                <b>Backend</b>
+                <p class="text-sm text-[#59636e] mt-2">
+                    Python + FastAPI
+                </p>
+            </div>
+
+            <div class="feature-card rounded-xl p-6">
+                <b>Optimizer</b>
+                <p class="text-sm text-[#59636e] mt-2">
+                    Google OR-Tools CP-SAT
+                </p>
+            </div>
+
+            <div class="feature-card rounded-xl p-6">
+                <b>Data</b>
+                <p class="text-sm text-[#59636e] mt-2">
+                    Real railway timetable + maintenance data
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#4a1717] text-white">
+
+        <div class="max-w-7xl mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-5">
+
+            <div>
+                <div class="font-black text-xl">
+                    RailSync-AI
+                </div>
+
+                <div class="text-sm text-white/60 mt-1">
+                    AI-Powered Automatic Railway Block Planning
+                </div>
+            </div>
+
+            <button
+                id="footerLoginBtn"
+                class="border border-white/30 px-5 py-2.5 rounded-lg font-bold hover:bg-white hover:text-[#4a1717] transition">
+                Staff Login
+            </button>
+
+        </div>
+
+    </footer>
+
+    <!-- AUTH MODAL -->
+    <div
+        id="authModal"
+        class="hidden fixed inset-0 z-50 modal-backdrop items-center justify-center p-5">
+
+        <div class="auth-panel rounded-2xl w-full max-w-md overflow-hidden">
+
+            <div class="px-6 py-5 border-b border-[#7a1f1f]/10 flex items-center justify-between">
+
+                <div>
+                    <div class="font-black text-xl text-[#4a1717]">
+                        RailSync-AI Staff
+                    </div>
+
+                    <div class="text-xs text-[#59636e]">
+                        Railway Operations Access
+                    </div>
+                </div>
+
+                <button
+                    id="closeAuthBtn"
+                    class="text-2xl text-[#59636e] hover:text-[#7a1f1f]">
+                    ×
+                </button>
+
+            </div>
+
+            <div class="flex border-b border-[#7a1f1f]/10">
+
+                <button
+                    id="loginTab"
+                    class="flex-1 py-3 font-bold text-sm text-[#7a1f1f] border-b-2 border-[#7a1f1f]">
+                    Login
+                </button>
+
+                <button
+                    id="registerTab"
+                    class="flex-1 py-3 font-bold text-sm text-[#59636e]">
+                    Register
+                </button>
+
+            </div>
+
+            <!-- LOGIN -->
+            <form id="loginPanel" class="p-6 space-y-4">
+
+                <div>
+                    <label class="text-sm font-bold">Staff ID</label>
+
+                    <input
+                        id="loginStaffId"
+                        type="text"
+                        required
+                        class="w-full mt-2 px-4 py-3 border border-[#7a1f1f]/15 rounded-lg outline-none focus:border-[#e87522]">
+                </div>
+
+                <div>
+                    <label class="text-sm font-bold">Password</label>
+
+                    <input
+                        id="loginPassword"
+                        type="password"
+                        required
+                        class="w-full mt-2 px-4 py-3 border border-[#7a1f1f]/15 rounded-lg outline-none focus:border-[#e87522]">
+                </div>
+
+                <div
+                    id="loginError"
+                    class="text-sm text-red-600">
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn-primary w-full py-3 rounded-lg font-bold">
+                    Login
+                </button>
+
+                <button
+                    type="button"
+                    id="forgotBtn"
+                    class="w-full text-sm text-[#7a1f1f] font-semibold">
+                    Forgot Staff ID / Password?
+                </button>
+
+            </form>
+
+            <!-- REGISTER -->
+            <form id="registerPanel" class="p-6 space-y-4 hidden">
+
+                <div>
+                    <label class="text-sm font-bold">Full Name</label>
+
+                    <input
+                        id="registerName"
+                        type="text"
+                        required
+                        class="w-full mt-2 px-4 py-3 border border-[#7a1f1f]/15 rounded-lg">
+                </div>
+
+                <div>
+                    <label class="text-sm font-bold">Staff ID</label>
+
+                    <input
+                        id="registerStaffId"
+                        type="text"
+                        required
+                        class="w-full mt-2 px-4 py-3 border border-[#7a1f1f]/15 rounded-lg">
+                </div>
+
+                <div>
+                    <label class="text-sm font-bold">Email</label>
+
+                    <input
+                        id="registerEmail"
+                        type="email"
+                        required
+                        class="w-full mt-2 px-4 py-3 border border-[#7a1f1f]/15 rounded-lg">
+                </div>
+
+                <div>
+                    <label class="text-sm font-bold">Role</label>
+
+                    <select
+                        id="registerRole"
+                        class="w-full mt-2 px-4 py-3 border border-[#7a1f1f]/15 rounded-lg">
+
+                        <option>Maintenance Staff</option>
+                        <option>Technical Staff</option>
+                        <option>Supervisor</option>
+                        <option>Control / Operations Officer</option>
+                        <option>Senior Officer / Admin</option>
+
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-sm font-bold">Password</label>
+
+                    <input
+                        id="registerPassword"
+                        type="password"
+                        required
+                        class="w-full mt-2 px-4 py-3 border border-[#7a1f1f]/15 rounded-lg">
+                </div>
+
+                <div
+                    id="registerError"
+                    class="text-sm text-red-600">
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn-orange w-full py-3 rounded-lg font-bold">
+                    Register Staff
+                </button>
+
+            </form>
+
+            <!-- FORGOT -->
+            <div id="forgotPanel" class="hidden p-6">
+
+                <h3 class="font-black text-xl text-[#4a1717]">
+                    Account Recovery
+                </h3>
+
+                <p class="text-sm text-[#59636e] mt-2">
+                    Enter your registered email to recover your Staff ID.
+                </p>
+
+                <input
+                    id="forgotEmail"
+                    type="email"
+                    class="w-full mt-5 px-4 py-3 border border-[#7a1f1f]/15 rounded-lg"
+                    placeholder="Staff email">
+
+                <div
+                    id="forgotResult"
+                    class="text-sm mt-3">
+                </div>
+
+                <button
+                    id="forgotSubmitBtn"
+                    class="btn-primary w-full py-3 rounded-lg font-bold mt-4">
+                    Recover
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+
+        const API_BASE_URL = "http://127.0.0.1:8000";
+
+        const SESSION_KEY = "railsync_staff_session";
+        const ACCOUNTS_KEY = "railsync_staff_accounts";
+
+        const $ = id => document.getElementById(id);
+
+        function getAccounts() {
+            try {
+                return JSON.parse(
+                    localStorage.getItem(ACCOUNTS_KEY) || "[]"
+                );
+            } catch {
+                return [];
+            }
+        }
+
+        function saveAccounts(accounts) {
+            localStorage.setItem(
+                ACCOUNTS_KEY,
+                JSON.stringify(accounts)
+            );
+        }
+
+        function setSession(account) {
+
+            const session = {
+                name: account.name,
+                staffId: account.staffId,
+                staff_id: account.staffId,
+                email: account.email,
+                role: account.role
+            };
+
+            localStorage.setItem(
+                SESSION_KEY,
+                JSON.stringify(session)
+            );
+        }
+
+        function openAuth(mode = "login") {
+
+            $("authModal").classList.remove("hidden");
+            $("authModal").classList.add("flex");
+
+            $("forgotPanel").classList.add("hidden");
+
+            if (mode === "register") {
+                $("loginPanel").classList.add("hidden");
+                $("registerPanel").classList.remove("hidden");
+
+                $("loginTab").classList.remove(
+                    "border-b-2",
+                    "border-[#7a1f1f]",
+                    "text-[#7a1f1f]"
+                );
+
+                $("registerTab").classList.add(
+                    "border-b-2",
+                    "border-[#7a1f1f]",
+                    "text-[#7a1f1f]"
+                );
+
+            } else {
+
+                $("registerPanel").classList.add("hidden");
+                $("loginPanel").classList.remove("hidden");
+
+                $("loginTab").classList.add(
+                    "border-b-2",
+                    "border-[#7a1f1f]",
+                    "text-[#7a1f1f]"
+                );
+
+                $("registerTab").classList.remove(
+                    "border-b-2",
+                    "border-[#7a1f1f]",
+                    "text-[#7a1f1f]"
+                );
+            }
+        }
+
+        function closeAuth() {
+            $("authModal").classList.add("hidden");
+            $("authModal").classList.remove("flex");
+        }
+
+        $("headerLoginBtn").onclick = () => openAuth("login");
+        $("heroLoginBtn").onclick = () => openAuth("login");
+        $("footerLoginBtn").onclick = () => openAuth("login");
+        $("heroRegisterBtn").onclick = () => openAuth("register");
+
+        $("heroConsoleBtn").onclick = () => {
+
+            const session =
+                localStorage.getItem(SESSION_KEY);
+
+            if (session) {
+                window.location.href = "dashboard.html";
+            } else {
+                openAuth("login");
+            }
+        };
+
+        $("closeAuthBtn").onclick = closeAuth;
+
+        $("loginTab").onclick = () => openAuth("login");
+        $("registerTab").onclick = () => openAuth("register");
+
+        $("forgotBtn").onclick = () => {
+
+            $("loginPanel").classList.add("hidden");
+            $("registerPanel").classList.add("hidden");
+            $("forgotPanel").classList.remove("hidden");
+
+        };
+
+        $("registerPanel").onsubmit = event => {
+
+            event.preventDefault();
+
+            const account = {
+
+                name: $("registerName").value.trim(),
+
+                staffId:
+                    $("registerStaffId").value.trim(),
+
+                email:
+                    $("registerEmail").value.trim(),
+
+                role:
+                    $("registerRole").value,
+
+                password:
+                    $("registerPassword").value
+            };
+
+            const accounts = getAccounts();
+
+            if (
+                accounts.some(
+                    item =>
+                        item.staffId.toLowerCase() ===
+                        account.staffId.toLowerCase()
+                )
+            ) {
+
+                $("registerError").textContent =
+                    "Staff ID already exists.";
+
+                return;
+            }
+
+            accounts.push(account);
+
+            saveAccounts(accounts);
+
+            setSession(account);
+
+            window.location.href =
+                "dashboard.html";
+        };
+
+        $("loginPanel").onsubmit = event => {
+
+            event.preventDefault();
+
+            const staffId =
+                $("loginStaffId").value.trim();
+
+            const password =
+                $("loginPassword").value;
+
+            const account =
+                getAccounts().find(
+                    item =>
+                        item.staffId.toLowerCase() ===
+                        staffId.toLowerCase() &&
+                        item.password === password
+                );
+
+            if (!account) {
+
+                $("loginError").textContent =
+                    "Invalid Staff ID or password.";
+
+                return;
+            }
+
+            setSession(account);
+
+            window.location.href =
+                "dashboard.html";
+        };
+
+        $("forgotSubmitBtn").onclick = () => {
+
+            const email =
+                $("forgotEmail").value.trim().toLowerCase();
+
+            const account =
+                getAccounts().find(
+                    item =>
+                        item.email.toLowerCase() === email
+                );
+
+            if (!account) {
+
+                $("forgotResult").textContent =
+                    "No staff account found for this email.";
+
+                $("forgotResult").className =
+                    "text-sm mt-3 text-red-600";
+
+                return;
+            }
+
+            $("forgotResult").textContent =
+                `Your Staff ID is: ${account.staffId}`;
+
+            $("forgotResult").className =
+                "text-sm mt-3 text-green-700";
+        };
+
+        async function refreshBackendStatus() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/`,
+                        {
+                            cache: "no-store"
+                        }
+                    );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
+                }
+
+                const data =
+                    await response.json();
+
+                $("systemStatus").textContent =
+                    data.status === "ONLINE"
+                        ? "ONLINE"
+                        : "OFFLINE";
+
+                $("backendConnection").textContent =
+                    data.status === "ONLINE"
+                        ? `ONLINE • ${data.version}`
+                        : "OFFLINE";
+
+                $("backendConnection").className =
+                    data.status === "ONLINE"
+                        ? "font-bold status-online"
+                        : "font-bold status-offline";
+
+                $("trainOperationalStatus").textContent =
+                    "LIVE";
+
+                $("maintenanceOperationalStatus").textContent =
+                    "READY";
+
+            } catch (error) {
+
+                $("systemStatus").textContent =
+                    "OFFLINE";
+
+                $("trainsStatus").textContent =
+                    "OFF";
+
+                $("blocksStatus").textContent =
+                    "OFF";
+
+                $("safetyStatus").textContent =
+                    "—";
+
+                $("backendConnection").textContent =
+                    "OFFLINE";
+
+                $("backendConnection").className =
+                    "font-bold status-offline";
+
+                $("trainOperationalStatus").textContent =
+                    "OFFLINE";
+
+                $("maintenanceOperationalStatus").textContent =
+                    "OFFLINE";
+            }
+        }
+
+        async function loadRailwayStatus() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/real-dataset`,
+                        {
+                            cache: "no-store"
+                        }
+                    );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
+                }
+
+                const result =
+                    await response.json();
+
+                const data =
+                    result.data || result;
+
+                const trainCount =
+                    data.trains?.length || 0;
+
+                const sectionCount =
+                    data.sections?.length || 0;
+
+                const demandCount =
+                    data.demands?.length || 0;
+
+                $("trainsStatus").textContent =
+                    trainCount;
+
+                $("blocksStatus").textContent =
+                    demandCount;
+
+                $("safetyStatus").textContent =
+                    "READY";
+
+                $("disruptionOperationalStatus").textContent =
+                    `${sectionCount} SECTIONS`;
+
+            } catch {
+
+                $("trainsStatus").textContent =
+                    "—";
+
+                $("blocksStatus").textContent =
+                    "—";
+
+                $("safetyStatus").textContent =
+                    "—";
+            }
+        }
+
+        async function initializePortal() {
+
+            await refreshBackendStatus();
+            await loadRailwayStatus();
+
+            console.log(
+                "RailSync-AI public portal initialized."
+            );
+        }
+
+        initializePortal();
+
+    </script>
+
+</body>
+</html>

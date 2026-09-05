@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>RailSync-AI | Operations Console</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        :root {
+            --rail-orange: #e87522;
+            --rail-maroon: #7a1f1f;
+            --rail-dark: #4a1717;
+            --rail-cream: #f7f1e6;
+            --rail-gold: #d6a63d;
+            --rail-steel: #59636e;
+            --rail-light: #fffdf8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--rail-cream);
+            color: #351414;
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        .rail-line {
+            height: 4px;
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--rail-maroon),
+                    var(--rail-orange),
+                    var(--rail-gold),
+                    var(--rail-maroon)
+                );
+        }
+
+        .panel {
+            background: rgba(255,255,255,.88);
+            border: 1px solid rgba(122,31,31,.12);
+            box-shadow: 0 8px 25px rgba(74,23,23,.055);
+        }
+
+        .mini-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(122,31,31,.08);
+            font-size: 12px;
+        }
+
+        .request-card {
+            background: white;
+            border: 1px solid rgba(122,31,31,.1);
+            border-radius: 10px;
+            padding: 13px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .request-card header {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .request-card footer {
+            margin-top: 10px;
+            color: #59636e;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+            background: #f0e6dc;
+            color: #7a1f1f;
+        }
+
+        .badge-green {
+            background: #e4f2e9;
+            color: #247048;
+        }
+
+        .badge-orange {
+            background: #f9e6d5;
+            color: #b85812;
+        }
+
+        .badge-red {
+            background: #f7dddd;
+            color: #9c2424;
+        }
+
+        .btn {
+            border-radius: 7px;
+            padding: 7px 11px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--rail-maroon);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--rail-dark);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid rgba(122,31,31,.2);
+            color: var(--rail-maroon);
+        }
+
+        .btn-outline:hover {
+            background: #f7eee7;
+        }
+
+        .section-row {
+            display: grid;
+            grid-template-columns: 130px 150px 1fr;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(122,31,31,.08);
+            font-size: 12px;
+        }
+
+        .section-track {
+            height: 4px;
+            border-radius: 99px;
+            background:
+                linear-gradient(
+                    90deg,
+                    #7a1f1f,
+                    #e87522,
+                    #d6a63d
+                );
+        }
+
+        .disruption-card {
+            border: 1px solid rgba(122,31,31,.12);
+            background: linear-gradient(
+                135deg,
+                #fffdf8,
+                #f5eadb
+            );
+        }
+
+        .result-card {
+            border: 1px solid rgba(122,31,31,.12);
+            background: white;
+        }
+
+        .chart-bar {
+            height: 12px;
+            border-radius: 999px;
+            background: #e8ddd0;
+            overflow: hidden;
+        }
+
+        .chart-fill {
+            height: 100%;
+            border-radius: 999px;
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--rail-maroon),
+                    var(--rail-orange),
+                    var(--rail-gold)
+                );
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            background: rgba(40,15,15,.55);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .loading {
+            opacity: .65;
+            pointer-events: none;
+        }
+
+        @media (max-width: 700px) {
+
+            .section-row {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="rail-line"></div>
+
+<header class="bg-[#fffdf8] border-b border-[#7a1f1f]/10">
+
+    <div class="max-w-[1500px] mx-auto px-5 py-4">
+
+        <div class="flex flex-wrap items-center justify-between gap-4">
+
+            <div class="flex items-center gap-3">
+
+                <div class="w-11 h-11 rounded-lg bg-[#7a1f1f] text-white flex items-center justify-center font-black">
+                    RS
+                </div>
+
+                <div>
+
+                    <div class="font-black text-[#4a1717] text-lg">
+                        RailSync-AI
+                    </div>
+
+                    <div class="text-[10px] uppercase tracking-[.2em] text-[#59636e]">
+                        Railway Operations Console
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="flex items-center gap-4">
+
+                <div class="text-right">
+
+                    <div
+                        id="staffName"
+                        class="font-black text-sm text-[#4a1717]">
+                        Railway Staff
+                    </div>
+
+                    <div
+                        id="staffRole"
+                        class="text-xs text-[#59636e]">
+                        Railway Staff
+                    </div>
+
+                </div>
+
+                <div
+                    id="staffAvatar"
+                    class="w-10 h-10 rounded-full bg-[#e87522] text-white flex items-center justify-center font-black text-xs">
+                    RS
+                </div>
+
+                <button
+                    id="logoutBtn"
+                    class="btn btn-outline">
+                    Logout
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+<main class="max-w-[1500px] mx-auto px-5 py-6 space-y-5">
+
+<section class="panel rounded-xl p-4">
+
+    <div class="flex flex-wrap justify-between items-center gap-3">
+
+        <div>
+
+            <div class="text-[10px] uppercase tracking-[.2em] text-[#59636e]">
+                Operations System
+            </div>
+
+            <div class="font-black text-xl text-[#4a1717]">
+                Automatic Block Planning Engine
+            </div>
+
+            <div class="text-xs text-[#59636e] mt-1">
+                Real railway timetable • AI priority • CP-SAT optimization
+            </div>
+
+        </div>
+
+        <div class="flex items-center gap-3">
+
+            <span
+                id="backendDot"
+                class="w-3 h-3 rounded-full bg-gray-400">
+            </span>
+
+            <span
+                id="backendStatus"
+                class="text-xs font-bold text-[#59636e]">
+                Backend checking...
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+
+    <div class="panel rounded-xl p-4">
+        <div class="text-xs text-[#59636e]">
+            Passenger Delay
+        </div>
+
+        <div id="kpiPassenger"
+             class="text-2xl font-black text-[#7a1f1f] mt-2">
+            —
+        </div>
+
+        <div class="text-[10px] text-[#59636e]">
+            minutes
+        </div>
+    </div>
+
+    <div class="panel rounded-xl p-4">
+        <div class="text-xs text-[#59636e]">
+            Waiting
+        </div>
+
+        <div id="kpiWaiting"
+             class="text-2xl font-black text-[#e87522] mt-2">
+            —
+        </div>
+
+        <div class="text-[10px] text-[#59636e]">
+            minutes
+        </div>
+    </div>
+
+    <div class="panel rounded-xl p-4">
+        <div class="text-xs text-[#59636e]">
+            Possession
+        </div>
+
+        <div id="kpiPossession"
+             class="text-2xl font-black text-[#d6a63d] mt-2">
+            —
+        </div>
+
+        <div class="text-[10px] text-[#59636e]">
+            minutes
+        </div>
+    </div>
+
+    <div class="panel rounded-xl p-4">
+        <div class="text-xs text-[#59636e]">
+            Safety Conflicts
+        </div>
+
+        <div id="kpiSafety"
+             class="text-2xl font-black text-[#247048] mt-2">
+            —
+        </div>
+
+        <div class="text-[10px] text-[#59636e]">
+            detected
+        </div>
+    </div>
+
+    <div class="panel rounded-xl p-4">
+        <div class="text-xs text-[#59636e]">
+            Scheduled Blocks
+        </div>
+
+        <div id="kpiScheduled"
+             class="text-2xl font-black text-[#4a1717] mt-2">
+            —
+        </div>
+
+        <div class="text-[10px] text-[#59636e]">
+            blocks
+        </div>
+    </div>
+
+    <div class="panel rounded-xl p-4">
+        <div class="text-xs text-[#59636e]">
+            Deferred
+        </div>
+
+        <div id="kpiDeferred"
+             class="text-2xl font-black text-[#7a1f1f] mt-2">
+            —
+        </div>
+
+        <div class="text-[10px] text-[#59636e]">
+            requests
+        </div>
+    </div>
+
+</section>
+
+<section class="panel rounded-xl p-4">
+
+    <div class="flex flex-wrap items-center justify-between gap-3">
+
+        <div>
+
+            <div class="font-black text-[#4a1717]">
+                Planning Controls
+            </div>
+
+            <div
+                id="roleAccessHint"
+                class="text-xs text-[#59636e] mt-1">
+                Checking role permissions...
+            </div>
+
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+
+            <select
+                id="horizonSelect"
+                class="px-3 py-2 rounded-lg border border-[#7a1f1f]/15 text-xs font-bold">
+
+                <option value="DAILY">
+                    Daily Planning
+                </option>
+
+                <option value="WEEKLY">
+                    Weekly Planning
+                </option>
+
+            </select>
+
+            <button
+                id="refreshBtn"
+                class="btn btn-outline">
+                Refresh Data
+            </button>
+
+            <button
+                id="optimizeBtn"
+                class="btn btn-primary">
+                Run Optimization
+            </button>
+
+            <button
+                id="newRequestBtn"
+                class="btn"
+                style="background:#e87522;color:white;">
+                New Maintenance Request
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+<section class="panel rounded-xl p-4 xl:col-span-2">
+
+    <div class="flex justify-between items-center mb-4">
+
+        <div>
+
+            <h2 class="font-black text-[#4a1717]">
+                Live Train Board
+            </h2>
+
+            <p class="text-xs text-[#59636e]">
+                Loaded from real railway timetable data
+            </p>
+
+        </div>
+
+        <span class="badge badge-green">
+            REAL DATA
+        </span>
+
+    </div>
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full text-xs">
+
+            <thead class="text-[#59636e] border-b border-[#7a1f1f]/10">
+
+                <tr>
+                    <th class="text-left p-2">Train</th>
+                    <th class="text-left p-2">Direction</th>
+                    <th class="text-left p-2">Departure</th>
+                    <th class="text-left p-2">Delay</th>
+                    <th class="text-left p-2">Status</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="trainBoardBody"></tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+<section class="panel rounded-xl p-4">
+
+    <h2 class="font-black text-[#4a1717]">
+        Optimization Engine
+    </h2>
+
+    <div class="space-y-3 mt-5">
+
+        <div class="mini-row">
+            <span>Solver</span>
+            <b id="engineSolver">—</b>
+        </div>
+
+        <div class="mini-row">
+            <span>Objective</span>
+            <b id="engineObjective">—</b>
+        </div>
+
+        <div class="mini-row">
+            <span>Solver Time</span>
+            <b id="engineTime">—</b>
+        </div>
+
+        <div class="mini-row">
+            <span>AI Priority</span>
+            <b id="engineAI">—</b>
+        </div>
+
+        <div class="mini-row">
+            <span>Goods Forecast</span>
+            <b id="engineGoods">—</b>
+        </div>
+
+        <div class="mini-row">
+            <span>State</span>
+            <b id="engineState">—</b>
+        </div>
+
+    </div>
+
+    <div class="mt-5 p-3 rounded-lg bg-[#f0e5d3]">
+
+        <div class="text-[10px] uppercase tracking-wider text-[#59636e]">
+            Plan Status
+        </div>
+
+        <div
+            id="planBadge"
+            class="font-black text-[#247048] mt-1">
+            CHECKING
+        </div>
+
+        <div
+            id="solverState"
+            class="text-xs text-[#59636e] mt-1">
+            —
+        </div>
+
+    </div>
+
+</section>
+
+</div>
+
+<section class="panel rounded-xl p-4">
+
+    <div class="flex justify-between items-center mb-4">
+
+        <div>
+
+            <h2 class="font-black text-[#4a1717]">
+                Operations Impact Graph
+            </h2>
+
+            <p class="text-xs text-[#59636e]">
+                Current optimization impact across major planning metrics
+            </p>
+
+        </div>
+
+        <span class="badge">
+            LIVE RESULT
+        </span>
+
+    </div>
+
+    <div id="impactGraph"
+         class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+    </div>
+
+</section>
+
+<section class="panel rounded-xl p-4">
+
+    <div class="flex justify-between items-center mb-3">
+
+        <div>
+
+            <h2 class="font-black text-[#4a1717]">
+                Railway Sections
+            </h2>
+
+            <p class="text-xs text-[#59636e]">
+                Real sections generated from timetable stations
+            </p>
+
+        </div>
+
+        <span id="sectionCount" class="badge">
+            —
+        </span>
+
+    </div>
+
+    <div id="railMap"></div>
+
+</section>
+
+<section class="disruption-card rounded-xl p-5">
+
+    <div class="flex flex-wrap justify-between items-start gap-4">
+
+        <div>
+
+            <div class="text-[10px] uppercase tracking-[.2em] text-[#e87522] font-black">
+                Operational Scenario
+            </div>
+
+            <h2 class="font-black text-xl text-[#4a1717] mt-1">
+                Disruption Simulation & Re-optimization
+            </h2>
+
+            <p class="text-xs text-[#59636e] mt-1 max-w-2xl">
+                Simulate a train delay on a real railway section and send the
+                scenario to the CP-SAT optimization engine for an updated
+                operational decision.
+            </p>
+
+        </div>
+
+        <span id="disruptionBadge" class="badge">
+            READY
+        </span>
+
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-3 mt-5">
+
+        <div>
+
+            <label class="text-[11px] font-black text-[#4a1717]">
+                Train
+            </label>
+
+            <select
+                id="disruptionTrain"
+                class="w-full mt-2 px-3 py-2.5 rounded-lg border border-[#7a1f1f]/15 text-xs">
+            </select>
+
+        </div>
+
+        <div>
+
+            <label class="text-[11px] font-black text-[#4a1717]">
+                Railway Section
+            </label>
+
+            <select
+                id="disruptionSection"
+                class="w-full mt-2 px-3 py-2.5 rounded-lg border border-[#7a1f1f]/15 text-xs">
+            </select>
+
+        </div>
+
+        <div>
+
+            <label class="text-[11px] font-black text-[#4a1717]">
+                Additional Delay
+            </label>
+
+            <input
+                id="disruptionDelay"
+                type="number"
+                min="1"
+                max="240"
+                value="35"
+                class="w-full mt-2 px-3 py-2.5 rounded-lg border border-[#7a1f1f]/15 text-xs">
+        </div>
+
+        <div class="flex items-end gap-2">
+
+            <button
+                id="simulateDisruptionBtn"
+                class="btn btn-primary flex-1">
+                Simulate Disruption
+            </button>
+
+            <button
+                id="clearDisruptionBtn"
+                class="btn btn-outline">
+                Clear
+            </button>
+
+        </div>
+
+    </div>
+
+    <div
+        id="disruptionMessage"
+        class="text-xs mt-4 text-[#59636e]">
+    </div>
+
+    <div id="disruptionResult"
+         class="grid md:grid-cols-2 gap-4 mt-5">
+
+        <div class="result-card rounded-xl p-4">
+
+            <div class="text-[10px] uppercase tracking-wider text-[#59636e]">
+                Before Scenario
+            </div>
+
+            <div id="beforeDisruptionResult"
+                 class="mt-3 text-xs text-[#59636e]">
+                Run a disruption simulation to compare plans.
+            </div>
+
+        </div>
+
+        <div class="result-card rounded-xl p-4">
+
+            <div class="text-[10px] uppercase tracking-wider text-[#59636e]">
+                After Re-optimization
+            </div>
+
+            <div id="afterDisruptionResult"
+                 class="mt-3 text-xs text-[#59636e]">
+                Waiting for simulation.
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="panel rounded-xl p-4">
+
+    <div class="flex justify-between items-center mb-3">
+
+        <div>
+
+            <h2 class="font-black text-[#4a1717]">
+                Optimized Maintenance Blocks
+            </h2>
+
+            <p class="text-xs text-[#59636e]">
+                Generated by CP-SAT
+            </p>
+
+        </div>
+
+        <span class="badge badge-green">
+            AI OPTIMIZED
+        </span>
+
+    </div>
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full text-xs">
+
+            <thead class="text-[#59636e] border-b border-[#7a1f1f]/10">
+
+                <tr>
+                    <th class="text-left p-2">Demand</th>
+                    <th class="text-left p-2">Department</th>
+                    <th class="text-left p-2">Section</th>
+                    <th class="text-left p-2">Time</th>
+                    <th class="text-left p-2">Duration</th>
+                    <th class="text-left p-2">Priority</th>
+                    <th class="text-left p-2">Safety</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="blockPlanBody"></tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+<div class="grid md:grid-cols-2 gap-5">
+
+<section class="panel rounded-xl p-4">
+
+    <h2 class="font-black text-[#4a1717]">
+        Goods Train Forecast
+    </h2>
+
+    <div id="forecastList" class="mt-3"></div>
+
+</section>
+
+<section class="panel rounded-xl p-4">
+
+    <h2 class="font-black text-[#4a1717]">
+        Corridor Availability
+    </h2>
+
+    <div id="availabilityList" class="mt-3"></div>
+
+</section>
+
+</div>
+
+<div class="grid md:grid-cols-2 gap-5">
+
+<section class="panel rounded-xl p-4">
+
+    <div class="flex justify-between items-center">
+
+        <h2 class="font-black text-[#4a1717]">
+            Maintenance Requests
+        </h2>
+
+        <span class="badge">
+            LOCAL
+        </span>
+
+    </div>
+
+    <div id="maintenanceList" class="mt-4"></div>
+
+</section>
+
+<section class="panel rounded-xl p-4">
+
+    <div class="flex justify-between items-center">
+
+        <h2 class="font-black text-[#4a1717]">
+            Approval Queue
+        </h2>
+
+        <span class="badge">
+            ROLE CONTROLLED
+        </span>
+
+    </div>
+
+    <div id="approvalList" class="mt-4"></div>
+
+</section>
+
+</div>
+
+<section class="panel rounded-xl p-4">
+
+    <h2 class="font-black text-[#4a1717]">
+        Decision Stream
+    </h2>
+
+    <div
+        id="logs"
+        class="mt-3 max-h-60 overflow-y-auto font-mono text-[11px] text-[#59636e]">
+    </div>
+
+</section>
+
+</main>
+
+<div id="requestModal" class="modal">
+
+    <div class="bg-[#fffdf8] rounded-2xl w-full max-w-lg">
+
+        <div class="px-6 py-5 border-b border-[#7a1f1f]/10 flex justify-between">
+
+            <div>
+
+                <h2 class="font-black text-xl text-[#4a1717]">
+                    New Maintenance Request
+                </h2>
+
+                <p class="text-xs text-[#59636e] mt-1">
+                    Submit a railway maintenance demand.
+                </p>
+
+            </div>
+
+            <button
+                id="closeRequest"
+                class="text-2xl text-[#59636e]">
+                ×
+            </button>
+
+        </div>
+
+        <form
+            id="maintenance-form"
+            class="p-6 space-y-4">
+
+            <div>
+
+                <label class="text-xs font-black">
+                    Railway Section
+                </label>
+
+                <input
+                    id="request-section"
+                    required
+                    class="w-full mt-2 px-3 py-2.5 rounded-lg border border-[#7a1f1f]/15">
+
+            </div>
+
+            <div>
+
+                <label class="text-xs font-black">
+                    Department
+                </label>
+
+                <select
+                    id="request-department"
+                    required
+                    class="w-full mt-2 px-3 py-2.5 rounded-lg border border-[#7a1f1f]/15">
+
+                    <option value="P-WAY">P-WAY</option>
+                    <option value="TRD">TRD</option>
+                    <option value="S&T">S&T</option>
+
+                </select>
+
+            </div>
+
+            <div>
+
+                <label class="text-xs font-black">
+                    Duration
+                </label>
+
+                <input
+                    id="request-duration"
+                    type="number"
+                    min="1"
+                    value="60"
+                    required
+                    class="w-full mt-2 px-3 py-2.5 rounded-lg border border-[#7a1f1f]/15">
+
+            </div>
+
+            <div>
+
+                <label class="text-xs font-black">
+                    Priority
+                </label>
+
+                <select
+                    id="request-priority"
+                    class="w-full mt-2 px-3 py-2.5 rounded-lg border border-[#7a1f1f]/15">
+
+                    <option>LOW</option>
+                    <option selected>MEDIUM</option>
+                    <option>HIGH</option>
+                    <option>CRITICAL</option>
+
+                </select>
+
+            </div>
+
+            <div>
+
+                <label class="text-xs font-black">
+                    Reason
+                </label>
+
+                <textarea
+                    id="request-reason"
+                    required
+                    rows="3"
+                    class="w-full mt-2 px-3 py-2.5 rounded-lg border border-[#7a1f1f]/15"></textarea>
+
+            </div>
+
+            <div id="requestError"
+                 class="text-sm text-red-600">
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-primary w-full">
+                Submit Maintenance Request
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script src="dashboard.js"></script>
+
+</body>
+</html>
