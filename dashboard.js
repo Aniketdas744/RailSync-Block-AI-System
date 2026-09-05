@@ -299,7 +299,7 @@
         async getHealth() {
 
             return apiRequest(
-                "/api/health"
+                "/"
             );
         },
 
